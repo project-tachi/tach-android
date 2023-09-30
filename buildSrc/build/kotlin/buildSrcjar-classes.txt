@@ -1,0 +1,1 @@
+/Users/rok/Projects/AndroidProjects/Tachi/buildSrc/build/classes/kotlin/main/website/tachi/app/Configuration.class
