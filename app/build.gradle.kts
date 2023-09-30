@@ -1,6 +1,5 @@
 import website.tachi.app.Configuration
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -39,12 +38,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -53,6 +46,9 @@ android {
 }
 
 dependencies {
+    implementation(project(mapOf("path" to ":presentation")))
+    implementation(project(mapOf("path" to ":domain")))
+    implementation(project(mapOf("path" to ":data")))
     implementation(libs.androidx.core.ktx)
 
     testImplementation(libs.junit)

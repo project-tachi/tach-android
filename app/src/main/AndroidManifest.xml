@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tachi"
         tools:targetApi="31">
+
         <activity
             android:name=".presentation.ui.main.MainActivity"
             android:exported="true"
