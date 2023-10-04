@@ -14,8 +14,10 @@ data class AppColors(
 
 @Immutable
 data class AppTypography(
-    val body: TextStyle,
-    val title: TextStyle
+    val headline: TextStyle = TextStyle.Default,
+    val subHeadline: TextStyle = TextStyle.Default,
+    val body: TextStyle = TextStyle.Default,
+    val title: TextStyle = TextStyle.Default
 )
 
 val LocalAppColors = staticCompositionLocalOf {
@@ -26,8 +28,5 @@ val LocalAppColors = staticCompositionLocalOf {
     )
 }
 val LocalAppTypography = staticCompositionLocalOf {
-    AppTypography(
-        body = TextStyle.Default,
-        title = TextStyle.Default
-    )
+    AppTypography()
 }
