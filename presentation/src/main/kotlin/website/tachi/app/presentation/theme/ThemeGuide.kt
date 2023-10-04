@@ -16,7 +16,9 @@ data class AppColors(
 data class AppTypography(
     val headline: TextStyle = TextStyle.Default,
     val subHeadline: TextStyle = TextStyle.Default,
-    val body: TextStyle = TextStyle.Default,
+    val gmarketSansBody: TextStyle = TextStyle.Default,
+    val bodyGmarketSans: TextStyle = TextStyle.Default,
+    val pretendardBody: TextStyle = TextStyle.Default,
     val title: TextStyle = TextStyle.Default
 )
 

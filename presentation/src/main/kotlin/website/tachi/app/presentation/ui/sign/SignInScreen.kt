@@ -2,6 +2,7 @@ package website.tachi.app.presentation.ui.sign
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,17 +32,21 @@ import website.tachi.app.presentation.theme.KakaoYellow
 @Composable
 fun SignInScreenPreview() {
     AppTheme {
-        SignInScreen()
+        SignInScreen {
+
+        }
     }
 }
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(onKakaoSignInRequest: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray)
-            .weight(1f))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Gray)
+                .weight(1f)
+        )
 
         Column(
             Modifier
@@ -63,7 +68,7 @@ fun SignInScreen() {
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            KakaoLoginButton()
+            KakaoLoginButton(onKakaoSignInRequest)
 
             Spacer(modifier = Modifier.height(40.dp))
         }
@@ -72,12 +77,15 @@ fun SignInScreen() {
 
 @Preview
 @Composable
-fun KakaoLoginButton() {
+fun KakaoLoginButton(onClickListener: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape = RoundedCornerShape(10.dp))
             .background(color = KakaoYellow)
+            .clickable {
+                onClickListener.invoke()
+            }
             .padding(24.dp)
             .shadow(
                 elevation = 10.dp,
@@ -93,7 +101,7 @@ fun KakaoLoginButton() {
         Text(
             modifier = Modifier.align(Alignment.Center),
             text = "Sign with Kakao", style =
-            AppTheme.typography.body.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            AppTheme.typography.gmarketSansBody.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
         )
     }
 }
