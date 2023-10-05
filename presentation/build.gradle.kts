@@ -65,4 +65,5 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     implementation(libs.coil.compose)
+    implementation(libs.numberpicker)
 }
