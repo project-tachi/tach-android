@@ -1,4 +1,9 @@
 package website.tachi.app.presentation.ui.sign
 
-class SignInViewModel {
+import com.meokq.boss.presentation.ui.base.BaseViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class SignInViewModel @Inject constructor() : BaseViewModel() {
 }

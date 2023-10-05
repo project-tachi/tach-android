@@ -1,45 +1,26 @@
 package website.tachi.app.presentation.ui.main
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import website.tachi.app.presentation.theme.AppTheme
+import com.meokq.boss.presentation.ui.base.BaseComposeActivity
+import dagger.hilt.android.AndroidEntryPoint
+import website.tachi.app.presentation.ui.search.SearchScreen
+import website.tachi.app.presentation.ui.sign.SignInViewModel
+import javax.inject.Inject
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            AppTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
-        }
+@AndroidEntryPoint
+class MainActivity @Inject constructor() : BaseComposeActivity<SignInViewModel>() {
+
+    override val viewModel: SignInViewModel by viewModels()
+
+    override fun beforeCompose() {
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    @Composable
+    override fun Compose() {
+        SearchScreen()
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppTheme {
-        Greeting("Android")
+    override fun afterCompose() {
     }
 }

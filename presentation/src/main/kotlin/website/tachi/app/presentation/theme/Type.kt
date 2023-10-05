@@ -5,7 +5,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import website.tachi.app.presentation.R
 
@@ -16,11 +15,17 @@ val Pretendard = FontFamily(
     Font(R.font.pretendardregular, FontWeight.Normal),
 )
 
+val GmarketSans = FontFamily(
+    Font(R.font.gmarketsansbold, FontWeight.Bold),
+    Font(R.font.gmarketsanslight, FontWeight.Light),
+    Font(R.font.gmarketsansmedium, FontWeight.Medium),
+)
+
 val BaseTextStyle = TextStyle(fontFamily = Pretendard)
 
 val typography = AppTypography(
     headline = TextStyle(
-        fontFamily = Pretendard,
+        fontFamily = GmarketSans,
         fontSize = 23.sp,
         fontWeight = FontWeight(700),
         color = Color(0xFF000000),
@@ -31,9 +36,10 @@ val typography = AppTypography(
         fontWeight = FontWeight(500),
         color = Color(0x99000000),
     ),
-    body = BaseTextStyle.copy(
-
+    gmarketSansBody = BaseTextStyle.copy(
+        fontFamily = GmarketSans
     ),
+    pretendardBody = BaseTextStyle.copy(),
     title = TextStyle(fontSize = 32.sp)
 )
 
