@@ -21,6 +21,13 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Tachi">
+        </activity>
+
+        <activity
+            android:name=".presentation.ui.sign.SignInActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Tachi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
