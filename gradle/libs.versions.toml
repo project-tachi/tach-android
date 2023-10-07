@@ -8,6 +8,7 @@ coilCompose = "2.4.0"
 converterGson = "2.9.0"
 core-ktx = "1.12.0"
 espresso-core = "3.5.1"
+firebaseBom = "32.3.1"
 glassmorphicComposables = "0.0.4"
 hiltAndroid = "2.44"
 hiltCompiler = "2.44"
@@ -22,8 +23,10 @@ numberpicker = "1.0.3"
 org-jetbrains-kotlin-android = "1.8.10"
 retrofit = "2.9.0"
 secretsGradlePlugin = "2.0.1"
+googleServices = "4.3.2"
 
 [plugins]
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
@@ -46,9 +49,14 @@ androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graph
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+
 glassmorphic-composables = { module = "com.github.jakhongirmadaminov:glassmorphic-composables", version.ref = "glassmorphicComposables" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }

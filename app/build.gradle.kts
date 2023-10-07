@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.google.secrets.gradle.plugin)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -65,5 +66,8 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     implementation(libs.kakao.sdk)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
 }
 
