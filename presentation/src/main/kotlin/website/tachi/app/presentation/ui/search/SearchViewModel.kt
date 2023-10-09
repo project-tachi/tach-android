@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import website.tachi.app.domain.usecase.GetFestivalsUseCase
 import website.tachi.app.domain.usecase.GetKeywordsUseCase
-import website.tachi.app.domain.usecase.GetLastLocationUseCase
+import website.tachi.app.domain.usecase.GetLastAddressUseCase
 import website.tachi.app.domain.usecase.GetPreferencesUseCase
 import website.tachi.app.presentation.state.CurrentLocationUiState
 import website.tachi.app.presentation.state.MainScreenUiState
@@ -24,7 +24,7 @@ class SearchViewModel @Inject constructor(
     private val getFestivalsUseCase: GetFestivalsUseCase,
     private val getPreferencesUseCase: GetPreferencesUseCase,
     private val getKeywordsUseCase: GetKeywordsUseCase,
-    private val getLastLocationUseCase: GetLastLocationUseCase
+    private val getLastAddressUseCase: GetLastAddressUseCase
 ) : BaseViewModel() {
 
     private val _conditions = MutableStateFlow<MainScreenUiState>(MainScreenUiState.Loading)
@@ -40,10 +40,10 @@ class SearchViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             kotlin.runCatching {
-                getLastLocationUseCase()
-            }.onSuccess { locationPair ->
+                getLastAddressUseCase()
+            }.onSuccess { address ->
                 _location.update {
-                    CurrentLocationUiState.Success(locationPair.first, locationPair.second)
+                    CurrentLocationUiState.Success(address)
                 }
             }.onFailure {
                 Log.e("getLastLocationUseCase", it.message ?: "")

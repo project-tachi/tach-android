@@ -82,6 +82,9 @@ fun SearchScreen(
     val uiState by viewModel.conditions.collectAsStateWithLifecycle(initialValue = MainScreenUiState.Loading)
     val location by viewModel.location.collectAsStateWithLifecycle(initialValue = CurrentLocationUiState.Loading)
 
+    var day by remember { mutableIntStateOf(1) }
+    var hour by remember { mutableIntStateOf(12) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -143,16 +146,35 @@ fun SearchScreen(
                             },
                             selectedFestivalId = viewModel.selectFestivalId.value,
                             selectedKeywordId = viewModel.selectKeywordId.value,
-                            selectedPreferenceId = viewModel.selectPreferenceId.value
+                            selectedPreferenceId = viewModel.selectPreferenceId.value,
+                            day = day,
+                            hour = hour,
+                            dayChange = {
+                                day = it
+                            },
+                            hourChange = {
+                                hour = it
+                            }
                         )
                     }
                 }
             }
 
             Box(modifier = Modifier.fillMaxWidth()) {
-                StartButton(modifier = Modifier.align(Alignment.CenterEnd)) {
+                val localLocation = location
+                if (localLocation is CurrentLocationUiState.Success)
+                    StartButton(modifier = Modifier.align(Alignment.CenterEnd)) {
+                        val preferenceId: String? = viewModel.selectPreferenceId.value?.toString()
+                        val festivalId: String? = viewModel.selectFestivalId.value?.toString()
+                        val keywordId: String? = viewModel.selectKeywordId.value?.toString()
+                        val travelDuration = day * 24 + hour
+                        val latitude = localLocation.address.latitude
+                        val longitude = localLocation.address.longitude
 
-                }
+                        val route =
+                            "schedule/${preferenceId ?: "unknown"}/${festivalId ?: "unknown"}/${keywordId ?: "unknown"}/$travelDuration/$latitude/$longitude"
+                        navController.navigate(route)
+                    }
             }
         }
     }
@@ -169,6 +191,7 @@ fun SearchConditionView(
     selectedFestivalId: Long?,
     selectedKeywordId: Int?,
     selectedPreferenceId: Int?,
+    day: Int, hour: Int, dayChange: (Int) -> Unit, hourChange: (Int) -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
         SubTitle(painter = painterResource(id = R.drawable.rocket_24), text = "Styles")
@@ -217,7 +240,7 @@ fun SearchConditionView(
             text = "Period"
         )
 
-        PeriodPicker()
+        PeriodPicker(day, hour, dayChange, hourChange)
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -312,6 +335,11 @@ fun KeywordInput(value: String, onValueChangeRequest: (String) -> Unit) {
 fun KeywordItem(text: String, isSelected: Boolean, onSelect: () -> Unit) {
     Box(
         Modifier
+            .shadow(
+                elevation = 4.dp,
+                spotColor = Color(0x29000000),
+                ambientColor = Color(0x29000000)
+            )
             .background(color = Color(0x26FFFFFF), shape = RoundedCornerShape(size = 20.dp))
             .background(color = Color(0x1AFFFFFF), shape = RoundedCornerShape(size = 20.dp))
             .let {
@@ -319,7 +347,7 @@ fun KeywordItem(text: String, isSelected: Boolean, onSelect: () -> Unit) {
                     it.border(
                         width = 2.dp,
                         color = Color(0xCCFFFFFF),
-                        shape = RoundedCornerShape(size = 10.dp)
+                        shape = RoundedCornerShape(size = 20.dp)
                     )
                 } else {
                     it.border(
@@ -329,11 +357,7 @@ fun KeywordItem(text: String, isSelected: Boolean, onSelect: () -> Unit) {
                     )
                 }
             }
-            .shadow(
-                elevation = 4.dp,
-                spotColor = Color(0x29000000),
-                ambientColor = Color(0x29000000)
-            )
+
             .clickable {
                 onSelect.invoke()
             }
@@ -352,10 +376,7 @@ fun KeywordItem(text: String, isSelected: Boolean, onSelect: () -> Unit) {
 }
 
 @Composable
-fun PeriodPicker() {
-    var day by remember { mutableIntStateOf(0) }
-    var hour by remember { mutableIntStateOf(0) }
-
+fun PeriodPicker(day: Int, hour: Int, dayChange: (Int) -> Unit, hourChange: (Int) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -366,9 +387,9 @@ fun PeriodPicker() {
             modifier = Modifier
                 .defaultMinSize(minWidth = 100.dp),
             value = day,
-            range = 0..10,
+            range = 0..3,
             onValueChange = {
-                day = it
+                dayChange.invoke(it)
             },
             dividersColor = Color.Transparent,
             textStyle = AppTheme.typography.pretendardBody.copy(
@@ -396,7 +417,7 @@ fun PeriodPicker() {
             value = hour,
             range = 0..23,
             onValueChange = {
-                hour = it
+                hourChange.invoke(it)
             },
             dividersColor = Color.Transparent,
             textStyle = AppTheme.typography.pretendardBody.copy(

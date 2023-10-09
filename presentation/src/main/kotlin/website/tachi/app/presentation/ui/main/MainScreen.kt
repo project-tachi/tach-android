@@ -91,7 +91,7 @@ fun MainScreen(
             ) {
                 val locationUiState = location
                 if (locationUiState is CurrentLocationUiState.Success) {
-                    CurrentLocationIndicator(text = "${locationUiState.latitude}|${locationUiState.longitude}")
+                    CurrentLocationIndicator(text = locationUiState.address.address)
                 }
                 Spacer(modifier = Modifier.height(100.dp))
 

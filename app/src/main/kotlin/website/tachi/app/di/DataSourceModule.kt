@@ -5,6 +5,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.jetbrains.annotations.Async.Schedule
+import website.tachi.app.data.datasource.address.AddressDataSource
+import website.tachi.app.data.datasource.address.AddressDataSourceImpl
 import website.tachi.app.data.datasource.auth.AuthDataSource
 import website.tachi.app.data.datasource.auth.AuthDataSourceImpl
 import website.tachi.app.data.datasource.auth.AuthTokenDataSource
@@ -17,6 +20,8 @@ import website.tachi.app.data.datasource.location.LocationDataSource
 import website.tachi.app.data.datasource.location.LocationDataSourceImpl
 import website.tachi.app.data.datasource.preference.SearchPreferenceDataSource
 import website.tachi.app.data.datasource.preference.SearchPreferenceDataSourceImpl
+import website.tachi.app.data.datasource.schedule.ScheduleDataSource
+import website.tachi.app.data.datasource.schedule.ScheduleDataSourceImpl
 import website.tachi.app.data.network.model.FestivalData
 import javax.inject.Singleton
 
@@ -46,4 +51,12 @@ abstract class DataSourceModule {
     @Binds
     @Singleton
     abstract fun bindLocationDataSource(source: LocationDataSourceImpl): LocationDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindAddressDataSource(source: AddressDataSourceImpl): AddressDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindScheduleDataSource(source: ScheduleDataSourceImpl): ScheduleDataSource
 }
