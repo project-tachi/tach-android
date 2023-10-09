@@ -1,6 +1,8 @@
 package website.tachi.app.data.network.mapper
 
+import com.google.gson.Gson
 import website.tachi.app.data.network.model.FestivalData
+import website.tachi.app.data.util.parseJsonToListOfString
 import website.tachi.app.domain.model.Festival
 import website.tachi.app.domain.util.toDate
 
@@ -16,7 +18,7 @@ fun FestivalData.toDomain(): Festival {
         this.longitude,
         this.startTime.toDate()!!,
         this.endTime.toDate()!!,
-        this.imageUrls,
+        this.imageUrls.parseJsonToListOfString(),
         this.tourismArea.toDomain()
     )
 }

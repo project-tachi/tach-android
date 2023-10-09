@@ -5,5 +5,5 @@ data class TourismAreaData(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    val imageUrls: List<String>
+    val imageUrls: String
 )

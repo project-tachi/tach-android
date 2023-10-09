@@ -16,10 +16,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,13 +32,27 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import website.tachi.app.presentation.R
+import website.tachi.app.presentation.state.CurrentLocationUiState
+import website.tachi.app.presentation.state.MainScreenUiState
 import website.tachi.app.presentation.theme.AppTheme
+import website.tachi.app.presentation.ui.common.CurrentTime
+import website.tachi.app.presentation.ui.nav.TachiDestination
+import website.tachi.app.presentation.ui.search.SearchViewModel
+import website.tachi.app.presentation.utils.formatDateRange
 
 @Preview
 @Composable
@@ -44,7 +63,13 @@ fun MainScreenPreview() {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    navController: NavController = rememberNavController(),
+    viewModel: SearchViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.conditions.collectAsStateWithLifecycle(initialValue = MainScreenUiState.Loading)
+    val location by viewModel.location.collectAsStateWithLifecycle(initialValue = CurrentLocationUiState.Loading)
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -52,7 +77,6 @@ fun MainScreen() {
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
-
 
         Column(
             modifier = Modifier
@@ -65,47 +89,81 @@ fun MainScreen() {
                     .fillMaxSize()
                     .weight(1f)
             ) {
-                CurrentLocationIndicator()
-
+                val locationUiState = location
+                if (locationUiState is CurrentLocationUiState.Success) {
+                    CurrentLocationIndicator(text = "${locationUiState.latitude}|${locationUiState.longitude}")
+                }
                 Spacer(modifier = Modifier.height(100.dp))
 
                 MainBanner()
 
                 Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-                    SubTitle(painter = painterResource(id = R.drawable.rocket_24), text = "Styles")
 
-                    Spacer(Modifier.height(12.dp))
+                    when (val localUiState = uiState) {
+                        is MainScreenUiState.Loading -> {
 
-                    Row {
-                        TravelStyleCard(
-                            painter = painterResource(id = R.drawable.north_star_24),
-                            text = "Light"
-                        )
-                    }
+                        }
 
-                    Spacer(modifier = Modifier.height(48.dp))
+                        is MainScreenUiState.Failure -> {
 
-                    SubTitle(
-                        painter = painterResource(id = R.drawable.north_star_24),
-                        text = "Festivals"
-                    )
+                        }
 
-                    Spacer(Modifier.height(12.dp))
+                        is MainScreenUiState.Success -> {
+                            SubTitle(
+                                painter = painterResource(id = R.drawable.rocket_24),
+                                text = "Styles"
+                            )
 
-                    Row {
-                        FestivalCard(
-                            background = painterResource(id = R.drawable.drinkseoulpreview),
-                            title = "드링크 서울",
-                            eventTime = "13:00~21:00",
-                            location = "COEX, Seoul"
-                        )
+                            Spacer(Modifier.height(12.dp))
+
+                            LazyRow(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                items(localUiState.preferences) {
+                                    TravelStyleCard(
+                                        imageUrl = "https://api.tachi.website/${it.iconPath}",
+                                        text = it.name,
+                                        viewModel.selectPreferenceId.value == it.id
+                                    ) {
+                                        viewModel.selectPreferenceId.value = it.id
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(48.dp))
+
+                            SubTitle(
+                                painter = painterResource(id = R.drawable.north_star_24),
+                                text = "Festivals"
+                            )
+
+                            Spacer(Modifier.height(12.dp))
+
+                            LazyRow(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                items(localUiState.festivals) {
+                                    FestivalCard(
+                                        imageUrl = it.imageUrls.getOrNull(0) ?: "",
+                                        title = it.name,
+                                        eventTime = formatDateRange(it.startTime, it.endTime),
+                                        location = it.location,
+                                        viewModel.selectFestivalId.value == it.id
+                                    ) {
+                                        viewModel.selectFestivalId.value = it.id
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 StartButton(modifier = Modifier.align(Alignment.CenterEnd)) {
-
+                    navController.navigate(TachiDestination.DESTINATION_SEARCH)
                 }
             }
         }
@@ -113,7 +171,7 @@ fun MainScreen() {
 }
 
 @Composable
-fun TravelStyleCard(painter: Painter, text: String) {
+fun TravelStyleCard(imageUrl: String, text: String, isSelected: Boolean, onSelect: () -> Unit) {
     Column(
         Modifier
             .shadow(
@@ -121,17 +179,37 @@ fun TravelStyleCard(painter: Painter, text: String) {
                 spotColor = Color(0x29000000),
                 ambientColor = Color(0x29000000)
             )
-            .border(
-                width = 0.5.dp,
-                color = Color(0x4DFFFFFF),
-                shape = RoundedCornerShape(size = 10.dp)
-            )
             .defaultMinSize(minWidth = 140.dp)
             .background(color = Color(0x26FFFFFF), shape = RoundedCornerShape(size = 10.dp))
+            .clickable {
+                onSelect.invoke()
+            }
+            .let {
+                if (isSelected) {
+                    it.border(
+                        width = 2.dp,
+                        color = Color(0xCCFFFFFF),
+                        shape = RoundedCornerShape(size = 10.dp)
+                    )
+                } else {
+                    it.border(
+                        width = 0.5.dp,
+                        color = Color(0x4DFFFFFF),
+                        shape = RoundedCornerShape(size = 10.dp)
+                    )
+                }
+            }
             .padding(16.dp)
     ) {
 
-        Image(modifier = Modifier.size(16.dp), painter = painter, contentDescription = null)
+        AsyncImage(
+            modifier = Modifier.size(16.dp),
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imageUrl)
+                .decoderFactory(SvgDecoder.Factory())
+                .build(),
+            contentDescription = null,
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -147,7 +225,7 @@ fun TravelStyleCard(painter: Painter, text: String) {
 }
 
 @Composable
-fun TravelStyleCompatCard(painter: Painter, text: String) {
+fun TravelStyleCompatCard(imageUrl: String, text: String, isSelected : Boolean, onSelect: () -> Unit) {
     Row(
         Modifier
             .shadow(
@@ -162,11 +240,35 @@ fun TravelStyleCompatCard(painter: Painter, text: String) {
             )
             .defaultMinSize(minWidth = 140.dp)
             .background(color = Color(0x26FFFFFF), shape = RoundedCornerShape(size = 10.dp))
+            .clickable {
+                onSelect.invoke()
+            }
+            .let {
+                if (isSelected) {
+                    it.border(
+                        width = 2.dp,
+                        color = Color(0xCCFFFFFF),
+                        shape = RoundedCornerShape(size = 10.dp)
+                    )
+                } else {
+                    it.border(
+                        width = 0.5.dp,
+                        color = Color(0x4DFFFFFF),
+                        shape = RoundedCornerShape(size = 10.dp)
+                    )
+                }
+            }
             .padding(16.dp, 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        Image(modifier = Modifier.size(16.dp), painter = painter, contentDescription = null)
+        AsyncImage(
+            modifier = Modifier.size(16.dp),
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imageUrl)
+                .decoderFactory(SvgDecoder.Factory())
+                .build(),
+            contentDescription = null,
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -186,16 +288,24 @@ fun TravelStyleCompatCard(painter: Painter, text: String) {
 fun FestivalCardPreview() {
     AppTheme {
         FestivalCard(
-            background = painterResource(id = R.drawable.drinkseoulpreview),
+            imageUrl = "",
             title = "드링크 서울",
             eventTime = "13:00~21:00",
-            location = "COEX, Seoul"
+            location = "COEX, Seoul",
+            true, {}
         )
     }
 }
 
 @Composable
-fun FestivalCard(background: Painter, title: String, eventTime: String, location: String) {
+fun FestivalCard(
+    imageUrl: String,
+    title: String,
+    eventTime: String,
+    location: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
     Box(
         Modifier
             .shadow(
@@ -206,10 +316,24 @@ fun FestivalCard(background: Painter, title: String, eventTime: String, location
             .clip(RoundedCornerShape(size = 10.dp))
             .width(140.dp)
             .height(110.dp)
+            .clickable {
+                onSelect.invoke()
+            }
+            .let {
+                if (isSelected) {
+                    it.border(
+                        width = 2.dp,
+                        color = Color(0xCCFFFFFF),
+                        shape = RoundedCornerShape(size = 10.dp)
+                    )
+                } else {
+                    it
+                }
+            }
     ) {
-        Image(
+        AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            painter = background,
+            model = imageUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
@@ -291,7 +415,7 @@ fun SubTitle(painter: Painter, text: String) {
 @Composable
 fun MainBanner() {
     Text(
-        text = "Ready to Depart",
+        text = "I'M READY",
         style = AppTheme.typography.gmarketSansBody.copy(
             fontSize = 32.sp,
             fontWeight = FontWeight(700),
@@ -301,15 +425,7 @@ fun MainBanner() {
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    Text(
-        text = "00:00",
-        style = AppTheme.typography.gmarketSansBody.copy(
-            fontSize = 52.sp,
-            fontWeight = FontWeight(700),
-            color = Color(0xFFFFFFFF),
-        )
-    )
-
+    CurrentTime()
 }
 
 @Composable
@@ -338,7 +454,7 @@ fun StartButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
 }
 
 @Composable
-fun CurrentLocationIndicator() {
+fun CurrentLocationIndicator(text: String) {
     Column {
         Text(
             text = "Current Location",
@@ -361,7 +477,7 @@ fun CurrentLocationIndicator() {
 
 
             Text(
-                text = "Jagok-ro, Gangnam-gu", style = AppTheme.typography.gmarketSansBody.copy(
+                text = text, style = AppTheme.typography.gmarketSansBody.copy(
                     fontSize = 10.sp,
                     fontWeight = FontWeight(700),
                     color = Color(0xFFFFFFFF),

@@ -11,6 +11,6 @@ data class FestivalData(
     val longitude: Double,
     val startTime: String,
     val endTime: String,
-    val imageUrls: List<String>,
+    val imageUrls: String,
     val tourismArea: TourismAreaData
 )

@@ -22,5 +22,8 @@ interface TachiApiService {
     suspend fun getAllFestivals(): TachiResponse<List<FestivalData>>
 
     @GET("/recommend/keywords")
-    suspend fun getAllKeywords() : TachiResponse<List<KeywordData>>
+    suspend fun getAllKeywords(): TachiResponse<List<KeywordData>>
+
+    @GET("/search/coord2address")
+    suspend fun searchAddressByCoordinates(): TachiResponse<String>
 }
