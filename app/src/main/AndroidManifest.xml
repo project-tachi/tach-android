@@ -45,10 +45,17 @@
 
                 <data
                     android:host="oauth"
-                    android:scheme="kakao${KAKAO_AOUTH_HOST_SCHEME}" />
+                    android:scheme="kakao${KAKAO_OAUTH_HOST_SCHEME}" />
             </intent-filter>
         </activity>
 
+        <meta-data
+            android:name="com.kakao.vectormap.APP_KEY"
+            android:value="${KAKAO_OAUTH_HOST_SCHEME}"/>
+
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="${NAVER_MAP_CLIENT_ID}" />
     </application>
 
 </manifest>

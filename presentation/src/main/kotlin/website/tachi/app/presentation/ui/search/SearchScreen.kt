@@ -109,7 +109,7 @@ fun SearchScreen(
                         .size(32.dp)
                         .clip(CircleShape)
                         .clickable {
-
+                            navController.navigateUp()
                         }
                         .background(color = Color(0x3DFFFFFF))
                 ) {
@@ -353,7 +353,7 @@ fun KeywordItem(text: String, isSelected: Boolean, onSelect: () -> Unit) {
                     it.border(
                         width = 0.5.dp,
                         color = Color(0x4DFFFFFF),
-                        shape = RoundedCornerShape(size = 10.dp)
+                        shape = RoundedCornerShape(size = 20.dp)
                     )
                 }
             }

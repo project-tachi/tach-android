@@ -61,6 +61,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.kakao.sdk)
+    implementation(libs.kakao.map)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
@@ -72,4 +73,6 @@ dependencies {
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    implementation (libs.naver.map.compose)
 }
