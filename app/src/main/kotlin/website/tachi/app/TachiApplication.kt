@@ -13,7 +13,7 @@ class TachiApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        KakaoSdk.init(this, BuildConfig.KAKAO_AOUTH_HOST_SCHEME)
+        KakaoSdk.init(this, BuildConfig.KAKAO_OAUTH_HOST_SCHEME)
         FirebaseApp.initializeApp(this)
 
         if (BuildConfig.DEBUG) {

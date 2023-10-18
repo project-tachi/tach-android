@@ -50,6 +50,7 @@ dependencies {
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
+    implementation(libs.play.services.location)
     debugImplementation(libs.bundles.androidx.compose.debug)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -60,10 +61,18 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.kakao.sdk)
+    implementation(libs.kakao.map)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
+
     implementation(libs.numberpicker)
+
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    implementation (libs.naver.map.compose)
 }

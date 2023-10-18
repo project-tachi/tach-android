@@ -1,6 +1,8 @@
 [versions]
 activity-compose = "1.7.2"
 agp = "8.1.0"
+bottomsheetdialogCompose = "1.4.0"
+kakaomap = "2.6.0"
 androidx-junit = "1.1.5"
 appcompat = "1.6.1"
 cloudy = "0.1.2"
@@ -12,13 +14,16 @@ firebaseBom = "32.3.1"
 glassmorphicComposables = "0.0.4"
 hiltAndroid = "2.44"
 hiltCompiler = "2.44"
+hiltNavigationCompose = "1.1.0-beta01"
 junit = "4.13.2"
 kotlin = "1.8.10"
 lifecycle-runtime-ktx = "2.6.2"
-androidxComposeBom = "2023.09.02"
+androidxComposeBom = "2023.10.00"
+lifecycleRuntimeCompose = "2.6.0-beta01"
 material = "1.9.0"
 kakaosdk = "2.17.0"
 hilt = "2.44"
+naverMapCompose = "1.5.0"
 numberpicker = "1.0.3"
 org-jetbrains-kotlin-android = "1.8.10"
 retrofit = "2.9.0"
@@ -38,7 +43,9 @@ google-secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
@@ -50,8 +57,10 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-ui-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
+bottomsheetdialog-compose = { module = "com.holix.android:bottomsheetdialog-compose", version.ref = "bottomsheetdialogCompose" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
@@ -62,9 +71,12 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kakao-sdk = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakaosdk" }
+kakao-map = { module = "com.kakao.maps.open:android", version.ref = "kakaomap" }
 google-secrets-gradle-plugin = { group = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", name = "secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+naver-map-compose = { module = "io.github.fornewid:naver-map-compose", version.ref = "naverMapCompose" }
 numberpicker = { module = "com.chargemap.compose:numberpicker", version.ref = "numberpicker" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version = "21.0.1" }
 
 [bundles]
 androidx-compose = [
