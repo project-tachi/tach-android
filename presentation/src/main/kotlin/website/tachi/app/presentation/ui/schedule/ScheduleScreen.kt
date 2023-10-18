@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -40,6 +44,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
@@ -48,11 +53,14 @@ import com.kakao.vectormap.MapView
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.Marker
 import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.PathOverlay
+import com.naver.maps.map.compose.rememberCameraPositionState
 import website.tachi.app.domain.model.Category
 import website.tachi.app.domain.model.SchedulePlace
 import website.tachi.app.domain.model.TourismArea
@@ -88,6 +96,9 @@ fun ScheduleScreen(
         )
     }
 
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+    }
+
     when (val localUiState = uiState) {
         is ScheduleUiState.Loading -> {
 
@@ -97,71 +108,40 @@ fun ScheduleScreen(
 
         }
 
-        is ScheduleUiState.Success -> {
+        is ScheduleUiState.Success ->
             BottomSheetScaffold(
                 sheetPeekHeight = 256.dp,
                 sheetContainerColor = Color(0xfffafafa),
                 sheetContent = {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(32.dp, 16.dp)
+                        contentPadding = PaddingValues(32.dp, 8.dp, 32.dp, 16.dp)
                     ) {
                         items(localUiState.places) {
-                            SchedulePlaceCard(schedulePlace = it)
+
                         }
                     }
                 }) {
-                /*Box(Modifier.fillMaxSize()) {
-                    AndroidView(
-                        modifier = Modifier.fillMaxSize(), // Occupy the max size in the Compose UI tree
-                        factory = { context ->
-                            MapView(context).apply {
-                                this.layoutParams = ViewGroup.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT
-                                )
 
-                                this.start(object : MapLifeCycleCallback() {
-                                    override fun onMapDestroy() {
-                                        Log.d("ScheduleScreen", "onMapDestroy")
-                                    }
-
-                                    override fun onMapError(error: Exception) {
-                                        Log.d("ScheduleScreen", error.message.toString())
-                                    }
-                                }, object : KakaoMapReadyCallback() {
-                                    override fun onMapReady(kakaoMap: KakaoMap) {
-                                        localUiState.places.map {
-                                            // 1. LabelStyles 생성하기 - Icon 이미지 하나만 있는 스타일
-                                            val styles = kakaoMap.labelManager?.addLabelStyles(LabelStyles.from(LabelStyle.from(website.tachi.app.presentation.R.drawable.location_small)))
-
-                                            val options =
-                                                LabelOptions.from(LatLng.from(it.longitude, it.latitude))
-                                                    .setStyles(styles)
-                                            val layer = kakaoMap.labelManager!!.layer
-
-                                            val label = layer!!.addLabel(options)
-                                            label.changeText("안녕하세요!");
-                                            }
-                                    }
-                                })
-                            }
-                        },
-                        update = { view ->
-                            view.invalidate()
-                        }
+                localUiState.places.getOrNull(0)?.let {
+                    cameraPositionState.position = CameraPosition(
+                        com.naver.maps.geometry.LatLng(
+                            it.latitude, it.longitude
+                        ), 13.0
                     )
-                }*/
+                }
 
                 NaverMap(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState
                 ) {
                     localUiState.places.map {
                         Marker(
-                            state = MarkerState(position = com.naver.maps.geometry.LatLng(
-                                it.latitude,
-                                it.longitude
-                            )
+                            state = MarkerState(
+                                position = com.naver.maps.geometry.LatLng(
+                                    it.latitude,
+                                    it.longitude
+                                )
                             ),
                             captionText = it.name
                         )
@@ -169,7 +149,7 @@ fun ScheduleScreen(
 
                     PathOverlay(
                         coords = localUiState.places.map {
-                                                         com.naver.maps.geometry.LatLng(it.latitude, it.longitude)
+                            com.naver.maps.geometry.LatLng(it.latitude, it.longitude)
                         },
                         width = 2.dp,
                         outlineWidth = 0.dp,
@@ -180,10 +160,9 @@ fun ScheduleScreen(
                     )
                 }
             }
-        }
     }
-
 }
+
 
 
 @Preview
@@ -195,12 +174,99 @@ fun SchedulePlaceCardPreview() {
                 0, "", 0.0, 0.0,
                 listOf()
             ), Category(0, "음식점,카페"), Date()
-        )
+        ), {}
     )
 }
 
 @Composable
-fun SchedulePlaceCard(schedulePlace: SchedulePlace) {
+fun GuideCard() {
+    Column(
+        Modifier
+            .shadow(
+                elevation = 20.dp,
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000)
+            )
+            .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 10.dp))
+            .padding(16.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Box(
+                Modifier
+                    .padding(6.dp, 4.dp)
+                    .background(color = Color(0xFFFFD233), shape = RoundedCornerShape(size = 3.dp))
+            ) {
+                Text(
+                    text = "지역 인증 완료",
+                    style = AppTheme.typography.pretendardBody.copy(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xFF000000),
+                    )
+                )
+            }
+
+            Spacer(Modifier.width(6.dp))
+
+            Box(
+                Modifier
+                    .padding(6.dp, 4.dp)
+                    .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(size = 3.dp))
+            ) {
+                Text(
+                    text = "광고",
+                    style = AppTheme.typography.pretendardBody.copy(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xFF000000),
+                    )
+                )
+            }
+        }
+
+        Spacer(Modifier.height(10.dp))
+
+        Text(
+            text = "리뷰글",
+            style = AppTheme.typography.pretendardBody.copy(
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xCC000000),
+            )
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape),
+                model = "https://example.com/image.jpg",
+                contentDescription = null,
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                text = "이름",
+                style = AppTheme.typography.pretendardBody.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight(600),
+                    color = Color(0xFF000000),
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun SchedulePlaceCard(schedulePlace: SchedulePlace, onClick: () -> Unit) {
 
     Row(
         Modifier
@@ -210,6 +276,9 @@ fun SchedulePlaceCard(schedulePlace: SchedulePlace) {
                 ambientColor = Color(0x1A000000)
             )
             .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 10.dp))
+            .clickable {
+                onClick.invoke()
+            }
             .padding(16.dp)
     ) {
         Column(
