@@ -47,6 +47,7 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import website.tachi.app.presentation.R
 import website.tachi.app.presentation.state.CurrentLocationUiState
+import website.tachi.app.presentation.state.MainBackgroundImageUrlUiState
 import website.tachi.app.presentation.state.MainScreenUiState
 import website.tachi.app.presentation.theme.AppTheme
 import website.tachi.app.presentation.ui.common.CurrentTime
@@ -67,16 +68,41 @@ fun MainScreen(
     navController: NavController = rememberNavController(),
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    val mainBgImageUiState by viewModel.backgroundImageUrl.collectAsStateWithLifecycle(initialValue = MainBackgroundImageUrlUiState.Loading)
+
     val uiState by viewModel.conditions.collectAsStateWithLifecycle(initialValue = MainScreenUiState.Loading)
     val location by viewModel.location.collectAsStateWithLifecycle(initialValue = CurrentLocationUiState.Loading)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.mainbackground),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            when (val localUiState = mainBgImageUiState) {
+                is MainBackgroundImageUrlUiState.Loading -> {
+                }
+
+                is MainBackgroundImageUrlUiState.Failure -> {
+
+                }
+
+                is MainBackgroundImageUrlUiState.Success -> {
+                    AsyncImage(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(localUiState.url)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                    )
+
+                    Spacer(
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color(0x73000000)))
+                }
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -225,7 +251,12 @@ fun TravelStyleCard(imageUrl: String, text: String, isSelected: Boolean, onSelec
 }
 
 @Composable
-fun TravelStyleCompatCard(imageUrl: String, text: String, isSelected : Boolean, onSelect: () -> Unit) {
+fun TravelStyleCompatCard(
+    imageUrl: String,
+    text: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
     Row(
         Modifier
             .shadow(

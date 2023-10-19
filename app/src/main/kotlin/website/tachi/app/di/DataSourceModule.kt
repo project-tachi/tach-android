@@ -20,6 +20,8 @@ import website.tachi.app.data.datasource.keyword.KeywordDataSource
 import website.tachi.app.data.datasource.keyword.KeywordDataSourceImpl
 import website.tachi.app.data.datasource.location.LocationDataSource
 import website.tachi.app.data.datasource.location.LocationDataSourceImpl
+import website.tachi.app.data.datasource.mainbg.MainBackgroundImageUrlDataSource
+import website.tachi.app.data.datasource.mainbg.MainBackgroundImageUrlDataSourceImpl
 import website.tachi.app.data.datasource.preference.SearchPreferenceDataSource
 import website.tachi.app.data.datasource.preference.SearchPreferenceDataSourceImpl
 import website.tachi.app.data.datasource.reviews.ReviewDataSource
@@ -78,4 +80,8 @@ abstract class DataSourceModule {
     @Binds
     @Singleton
     abstract fun bindSpotDataSource(source : SpotDataSourceImpl) : SpotDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindMainBackgroundImageUrlDataSource(source : MainBackgroundImageUrlDataSourceImpl) : MainBackgroundImageUrlDataSource
 }

@@ -59,4 +59,7 @@ interface TachiApiService {
 
     @GET("/spots/{id}/reviews")
     suspend fun getSpotReviews(@Path("id") id: Long, @Header("Authorization") token: String = "tester-tachi-hot"): TachiResponse<List<ReviewData>>
+
+    @GET("/search/background-image")
+    suspend fun getMainBackgroundImage() : TachiResponse<String>
 }
