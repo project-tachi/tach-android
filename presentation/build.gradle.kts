@@ -43,6 +43,7 @@ android {
 
 dependencies {
     implementation(project(mapOf("path" to ":domain")))
+    implementation(project(mapOf("path" to ":data")))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -61,7 +62,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.kakao.sdk)
-    implementation(libs.kakao.map)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

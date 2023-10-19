@@ -29,23 +29,24 @@ class ScheduleViewModel @Inject constructor(private val scheduleUseCase: GetSche
         latitude: Double,
         longitude: Double
     ) {
-        viewModelScope.launch {
-            kotlin.runCatching {
-                scheduleUseCase.invoke(
-                    preferenceId,
-                    festivalId,
-                    keywordId,
-                    travelDuration,
-                    latitude,
-                    longitude
-                )
-            }.onSuccess { list ->
-                _schedule.update {
-                    ScheduleUiState.Success(list)
+        if (_schedule.value !is ScheduleUiState.Success)
+            viewModelScope.launch {
+                kotlin.runCatching {
+                    scheduleUseCase.invoke(
+                        preferenceId,
+                        festivalId,
+                        keywordId,
+                        travelDuration,
+                        latitude,
+                        longitude
+                    )
+                }.onSuccess { list ->
+                    _schedule.update {
+                        ScheduleUiState.Success(list)
+                    }
+                }.onFailure {
+                    Log.d("loadSchedule", it.message ?: "")
                 }
-            }.onFailure {
-                Log.d("loadSchedule", it.message ?: "")
             }
-        }
     }
 }

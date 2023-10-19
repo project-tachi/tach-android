@@ -8,17 +8,20 @@ import website.tachi.app.domain.util.toDate
 
 fun FestivalData.toDomain(): Festival {
     return Festival(
-        this.id,
-        this.name,
-        this.content,
-        this.location,
-        this.roadAddress,
-        this.address,
-        this.latitude,
-        this.longitude,
-        this.startTime.toDate()!!,
-        this.endTime.toDate()!!,
-        this.imageUrls.parseJsonToListOfString(),
-        this.tourismArea.toDomain()
+        id = id ?: throw IllegalArgumentException("id cannot be null"),
+        name = name ?: throw IllegalArgumentException("name cannot be null"),
+        content = content ?: throw IllegalArgumentException("content cannot be null"),
+        location = location ?: throw IllegalArgumentException("location cannot be null"),
+        roadAddress = roadAddress?.toString(),
+        address = address,
+        latitude = latitude ?: throw IllegalArgumentException("latitude cannot be null"),
+        longitude = longitude ?: throw IllegalArgumentException("longitude cannot be null"),
+        startTime = startTime?.let { dateFormat.parse(it) }
+            ?: throw IllegalArgumentException("startTime cannot be null"),
+        endTime = endTime?.let { dateFormat.parse(it) }
+            ?: throw IllegalArgumentException("endTime cannot be null"),
+        imageUrls = this.imageUrls?.parseJsonToListOfString() ?: listOf(),
+        tourismArea = tourismArea?.toDomain()
+            ?: throw IllegalArgumentException("tourismArea cannot be null")
     )
 }

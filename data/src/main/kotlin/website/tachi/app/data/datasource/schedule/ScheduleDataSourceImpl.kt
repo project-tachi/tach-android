@@ -1,7 +1,7 @@
 package website.tachi.app.data.datasource.schedule
 
 import website.tachi.app.data.network.TachiApiService
-import website.tachi.app.data.network.model.SchedulePlaceData
+import website.tachi.app.data.network.model.ScheduleResponseData
 import javax.inject.Inject
 
 class ScheduleDataSourceImpl @Inject constructor(private val tachiApiService: TachiApiService) : ScheduleDataSource {
@@ -12,7 +12,7 @@ class ScheduleDataSourceImpl @Inject constructor(private val tachiApiService: Ta
         travelDuration: String,
         latitude: Double,
         longitude: Double
-    ): List<SchedulePlaceData> {
+    ): ScheduleResponseData {
         return tachiApiService.getSchedule(
             preferenceId,
             festivalId,

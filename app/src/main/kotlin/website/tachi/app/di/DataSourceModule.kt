@@ -14,15 +14,22 @@ import website.tachi.app.data.datasource.auth.AuthTokenDataSource
 import website.tachi.app.data.datasource.auth.AuthTokenDataSourceImpl
 import website.tachi.app.data.datasource.festival.FestivalDataSource
 import website.tachi.app.data.datasource.festival.FestivalDataSourceImpl
+import website.tachi.app.data.datasource.guide.GuideDataSource
+import website.tachi.app.data.datasource.guide.GuideDataSourceImpl
 import website.tachi.app.data.datasource.keyword.KeywordDataSource
 import website.tachi.app.data.datasource.keyword.KeywordDataSourceImpl
 import website.tachi.app.data.datasource.location.LocationDataSource
 import website.tachi.app.data.datasource.location.LocationDataSourceImpl
 import website.tachi.app.data.datasource.preference.SearchPreferenceDataSource
 import website.tachi.app.data.datasource.preference.SearchPreferenceDataSourceImpl
+import website.tachi.app.data.datasource.reviews.ReviewDataSource
+import website.tachi.app.data.datasource.reviews.ReviewDataSourceImpl
 import website.tachi.app.data.datasource.schedule.ScheduleDataSource
 import website.tachi.app.data.datasource.schedule.ScheduleDataSourceImpl
+import website.tachi.app.data.datasource.spots.SpotDataSource
+import website.tachi.app.data.datasource.spots.SpotDataSourceImpl
 import website.tachi.app.data.network.model.FestivalData
+import website.tachi.app.data.network.model.GuideData
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -59,4 +66,16 @@ abstract class DataSourceModule {
     @Binds
     @Singleton
     abstract fun bindScheduleDataSource(source: ScheduleDataSourceImpl): ScheduleDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindGuideDataSource(source : GuideDataSourceImpl) : GuideDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewDataSource(source : ReviewDataSourceImpl) : ReviewDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindSpotDataSource(source : SpotDataSourceImpl) : SpotDataSource
 }

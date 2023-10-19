@@ -5,11 +5,15 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 import website.tachi.app.data.network.model.FestivalData
+import website.tachi.app.data.network.model.GuideData
 import website.tachi.app.data.network.model.KeywordData
-import website.tachi.app.data.network.model.SchedulePlaceData
 import website.tachi.app.data.network.model.PreferenceData
+import website.tachi.app.data.network.model.ReviewData
+import website.tachi.app.data.network.model.ScheduleResponseData
+import website.tachi.app.data.network.model.SpotData
 import website.tachi.app.data.network.model.TachiResponse
 
 interface TachiApiService {
@@ -32,7 +36,7 @@ interface TachiApiService {
         @Query("longitude") longitude: Double
     ): TachiResponse<String>
 
-    @POST("schedule")
+    @POST("/v2/schedule")
     @FormUrlEncoded
     suspend fun getSchedule(
         @Field("preferenceId") preferenceId: String?,
@@ -42,5 +46,17 @@ interface TachiApiService {
         @Field("latitude") latitude: Double,
         @Field("longitude") longitude: Double,
         @Header("Authorization") token: String = "tester-tachi-hot"
-        ): TachiResponse<List<SchedulePlaceData>>
+    ): TachiResponse<ScheduleResponseData>
+
+    @GET("/guides/{id}")
+    suspend fun getGuide(@Path("id") id: Long, @Header("Authorization") token: String = "tester-tachi-hot"): TachiResponse<GuideData>
+
+    @GET("/guides/{id}/reviews")
+    suspend fun getGuideReviews(@Path("id") id: Long, @Header("Authorization") token: String = "tester-tachi-hot"): TachiResponse<List<ReviewData>>
+
+    @GET("/spots/{id}")
+    suspend fun getSpot(@Path("id") id: Long, @Header("Authorization") token: String = "tester-tachi-hot"): TachiResponse<SpotData>
+
+    @GET("/spots/{id}/reviews")
+    suspend fun getSpotReviews(@Path("id") id: Long, @Header("Authorization") token: String = "tester-tachi-hot"): TachiResponse<List<ReviewData>>
 }
