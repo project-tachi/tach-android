@@ -2,6 +2,7 @@ package website.tachi.app.presentation.ui.schedule
 
 import android.util.Log
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +20,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
@@ -62,16 +66,23 @@ import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.PathOverlay
 import com.naver.maps.map.compose.rememberCameraPositionState
 import website.tachi.app.domain.model.Category
-import website.tachi.app.domain.model.SchedulePlace
+import website.tachi.app.domain.model.Schedule
 import website.tachi.app.domain.model.TourismArea
+import website.tachi.app.domain.model.getLatitude
+import website.tachi.app.domain.model.getLongitude
+import website.tachi.app.domain.model.getName
 import website.tachi.app.presentation.R
 import website.tachi.app.presentation.state.ScheduleUiState
 import website.tachi.app.presentation.theme.AppTheme
+import website.tachi.app.presentation.ui.nav.TachiDestination
 import website.tachi.app.presentation.utils.toHHmmFormat
 import java.util.Date
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalNaverMapApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalNaverMapApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun ScheduleScreen(
     navController: NavController,
@@ -85,7 +96,7 @@ fun ScheduleScreen(
 ) {
     val uiState by viewModel.schedule.collectAsStateWithLifecycle(initialValue = ScheduleUiState.Loading)
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(Unit) {
         viewModel.loadSchedule(
             preferenceId,
             festivalId,
@@ -110,23 +121,54 @@ fun ScheduleScreen(
 
         is ScheduleUiState.Success ->
             BottomSheetScaffold(
-                sheetPeekHeight = 256.dp,
+                sheetPeekHeight = 280.dp,
                 sheetContainerColor = Color(0xfffafafa),
                 sheetContent = {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(32.dp, 8.dp, 32.dp, 16.dp)
-                    ) {
-                        items(localUiState.places) {
+                    Column {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(0.dp, 8.dp)
+                        ) {
+                            item {
+                                val pagerState = rememberPagerState(pageCount = {
+                                    localUiState.scheduleRes.guides.size
+                                })
+                                HorizontalPager(
+                                    state = pagerState,
+                                    contentPadding = PaddingValues(28.dp, 0.dp),
+                                ) { page ->
+                                    localUiState.scheduleRes.guides.getOrNull(page)?.let {
+                                        Box(modifier = Modifier.padding(4.dp, 0.dp)) {
+                                            GuideCard(
+                                                name = it.userData.name,
+                                                content = it.introduction ?: "가이드 소개",
+                                                imageUrl = it.userData.profilePicture
+                                                    ?: "https://picsum.photos/200"
+                                            ) {
+                                                navController.navigate(TachiDestination.DESTINATION_GUIDE_DETAIL + "/" + it.id)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
+                            items(localUiState.scheduleRes.scheduleResponses) {
+                                Box(Modifier.padding(32.dp, 0.dp)) {
+                                    SchedulePlaceCard(schedulePlace = it) {
+                                        if (it.type == "Spot") {
+                                            navController.navigate(TachiDestination.DESTINATION_SPOT_DETAIL + "/" + it.spotData?.id)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }) {
 
-                localUiState.places.getOrNull(0)?.let {
+                localUiState.scheduleRes.scheduleResponses.getOrNull(0)?.let {
                     cameraPositionState.position = CameraPosition(
                         com.naver.maps.geometry.LatLng(
-                            it.latitude, it.longitude
+                            it.getLatitude(), it.getLongitude()
                         ), 13.0
                     )
                 }
@@ -135,21 +177,21 @@ fun ScheduleScreen(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState
                 ) {
-                    localUiState.places.map {
+                    localUiState.scheduleRes.scheduleResponses.map {
                         Marker(
                             state = MarkerState(
                                 position = com.naver.maps.geometry.LatLng(
-                                    it.latitude,
-                                    it.longitude
+                                    it.getLatitude(),
+                                    it.getLongitude()
                                 )
                             ),
-                            captionText = it.name
+                            captionText = it.getName()
                         )
                     }
 
                     PathOverlay(
-                        coords = localUiState.places.map {
-                            com.naver.maps.geometry.LatLng(it.latitude, it.longitude)
+                        coords = localUiState.scheduleRes.scheduleResponses.map {
+                            com.naver.maps.geometry.LatLng(it.getLatitude(), it.getLongitude())
                         },
                         width = 2.dp,
                         outlineWidth = 0.dp,
@@ -164,22 +206,13 @@ fun ScheduleScreen(
 }
 
 
-
 @Preview
 @Composable
 fun SchedulePlaceCardPreview() {
-    SchedulePlaceCard(
-        schedulePlace = SchedulePlace(
-            "그냥 카페요", "", "로 주소가 여기", "", 0.0, 0.0, false, TourismArea(
-                0, "", 0.0, 0.0,
-                listOf()
-            ), Category(0, "음식점,카페"), Date()
-        ), {}
-    )
 }
 
 @Composable
-fun GuideCard() {
+fun GuideCard(name: String, content: String, imageUrl: String, onClick: () -> Unit) {
     Column(
         Modifier
             .shadow(
@@ -188,6 +221,10 @@ fun GuideCard() {
                 ambientColor = Color(0x1A000000)
             )
             .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 10.dp))
+            .clip(shape = RoundedCornerShape(size = 10.dp))
+            .clickable {
+                onClick.invoke()
+            }
             .padding(16.dp)
     ) {
         Row(
@@ -198,8 +235,8 @@ fun GuideCard() {
         ) {
             Box(
                 Modifier
-                    .padding(6.dp, 4.dp)
                     .background(color = Color(0xFFFFD233), shape = RoundedCornerShape(size = 3.dp))
+                    .padding(6.dp, 4.dp)
             ) {
                 Text(
                     text = "지역 인증 완료",
@@ -215,8 +252,8 @@ fun GuideCard() {
 
             Box(
                 Modifier
-                    .padding(6.dp, 4.dp)
                     .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(size = 3.dp))
+                    .padding(6.dp, 4.dp)
             ) {
                 Text(
                     text = "광고",
@@ -232,7 +269,8 @@ fun GuideCard() {
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "리뷰글",
+            modifier = Modifier.defaultMinSize(minHeight = 36.dp),
+            text = content,
             style = AppTheme.typography.pretendardBody.copy(
                 fontSize = 11.5.sp,
                 fontWeight = FontWeight(400),
@@ -247,14 +285,14 @@ fun GuideCard() {
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape),
-                model = "https://example.com/image.jpg",
+                model = imageUrl,
                 contentDescription = null,
             )
 
             Spacer(Modifier.width(8.dp))
 
             Text(
-                text = "이름",
+                text = name,
                 style = AppTheme.typography.pretendardBody.copy(
                     fontSize = 11.sp,
                     fontWeight = FontWeight(600),
@@ -266,7 +304,15 @@ fun GuideCard() {
 }
 
 @Composable
-fun SchedulePlaceCard(schedulePlace: SchedulePlace, onClick: () -> Unit) {
+fun SchedulePlaceCard(schedulePlace: Schedule, onClick: () -> Unit) {
+
+    val name = schedulePlace.spotData?.name ?: schedulePlace.festival?.name ?: "name"
+    val category = schedulePlace.spotData?.category?.name ?: "축제"
+    val address = (if (schedulePlace.spotData?.roadAddress?.trim()
+            ?.isBlank() == true
+    ) schedulePlace.spotData?.address else schedulePlace.spotData?.roadAddress)
+        ?: schedulePlace.festival?.address ?: "주소 오류"
+
 
     Row(
         Modifier
@@ -275,6 +321,7 @@ fun SchedulePlaceCard(schedulePlace: SchedulePlace, onClick: () -> Unit) {
                 spotColor = Color(0x1A000000),
                 ambientColor = Color(0x1A000000)
             )
+            .clip(RoundedCornerShape(size = 10.dp))
             .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 10.dp))
             .clickable {
                 onClick.invoke()
@@ -286,7 +333,7 @@ fun SchedulePlaceCard(schedulePlace: SchedulePlace, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = schedulePlace.category.name.split(",")[0],
+                text = category.split(",")[0],
                 style = AppTheme.typography.pretendardBody.copy(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W700,
@@ -317,7 +364,7 @@ fun SchedulePlaceCard(schedulePlace: SchedulePlace, onClick: () -> Unit) {
 
         Column(Modifier.fillMaxWidth()) {
             Text(
-                text = schedulePlace.name,
+                text = name,
                 style = AppTheme.typography.pretendardBody.copy(
                     fontSize = 12.sp,
                     fontWeight = FontWeight(600),
@@ -334,9 +381,7 @@ fun SchedulePlaceCard(schedulePlace: SchedulePlace, onClick: () -> Unit) {
                 )
 
                 Text(
-                    text = if (schedulePlace.roadAddress.trim()
-                            .isBlank()
-                    ) schedulePlace.address else schedulePlace.roadAddress,
+                    text = address,
                     style = AppTheme.typography.pretendardBody.copy(
                         fontSize = 8.sp,
                         fontWeight = FontWeight(500),

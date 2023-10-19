@@ -8,18 +8,24 @@ import website.tachi.app.data.repository.address.AddressRepositoryImpl
 import website.tachi.app.data.repository.auth.AuthRepositoryImpl
 import website.tachi.app.data.repository.auth.AuthTokenRepositoryImpl
 import website.tachi.app.data.repository.festival.FestivalRepositoryImpl
+import website.tachi.app.data.repository.guide.GuideRepositoryImpl
 import website.tachi.app.data.repository.keyword.KeywordRepositoryImpl
 import website.tachi.app.data.repository.location.LocationRepositoryImpl
 import website.tachi.app.data.repository.preference.PreferenceRepositoryImpl
+import website.tachi.app.data.repository.review.ReviewRepositoryImpl
 import website.tachi.app.data.repository.schedule.ScheduleRepositoryImpl
+import website.tachi.app.data.repository.spot.SpotRepositoryImpl
 import website.tachi.app.domain.repository.AddressRepository
 import website.tachi.app.domain.repository.AuthRepository
 import website.tachi.app.domain.repository.AuthTokenRepository
 import website.tachi.app.domain.repository.FestivalRepository
+import website.tachi.app.domain.repository.GuideRepository
 import website.tachi.app.domain.repository.KeywordRepository
 import website.tachi.app.domain.repository.LocationRepository
 import website.tachi.app.domain.repository.PreferenceRepository
+import website.tachi.app.domain.repository.ReviewRepository
 import website.tachi.app.domain.repository.ScheduleRepository
+import website.tachi.app.domain.repository.SpotRepository
 import javax.inject.Singleton
 
 @Module
@@ -56,4 +62,16 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindScheduleRepository(repo : ScheduleRepositoryImpl) : ScheduleRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGuideRepository(repo : GuideRepositoryImpl) : GuideRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewRepository(repo : ReviewRepositoryImpl) : ReviewRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSpotRepository(repo : SpotRepositoryImpl) :SpotRepository
 }

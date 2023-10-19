@@ -67,7 +67,6 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     implementation(libs.kakao.sdk)
-    implementation(libs.kakao.map)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)

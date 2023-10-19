@@ -2,29 +2,29 @@ package website.tachi.app.data.network.model
 
 import com.google.gson.annotations.SerializedName
 
-data class FestivalData(
+data class SpotData(
     @SerializedName("id")
-    val id: Long?,
+    val id: Int?,
     @SerializedName("name")
     val name: String?,
     @SerializedName("content")
     val content: String?,
-    @SerializedName("location")
-    val location: String?,
     @SerializedName("roadAddress")
-    val roadAddress: Any?,
+    val roadAddress: String?,
     @SerializedName("address")
     val address: String?,
+    @SerializedName("imageUrls")
+    val imageUrls: String?,
     @SerializedName("latitude")
     val latitude: Double?,
     @SerializedName("longitude")
     val longitude: Double?,
-    @SerializedName("startTime")
-    val startTime: String?,
-    @SerializedName("endTime")
-    val endTime: String?,
-    @SerializedName("imageUrls")
-    val imageUrls: String?,
+    @SerializedName("parkingSupported")
+    val parkingSupported: Boolean?,
     @SerializedName("tourismArea")
-    val tourismArea: TourismAreaData?  // TourismAreaData 라는 이름으로 가정
+    val tourismArea: TourismAreaData?,
+    @SerializedName("recommendationType")
+    val recommendationTypeData: RecommendationTypeData?,
+    @SerializedName("category")
+    val category: CategoryData?
 )

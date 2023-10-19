@@ -3,11 +3,9 @@ package website.tachi.app.presentation.ui.spot
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,132 +13,168 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import website.tachi.app.domain.model.SchedulePlace
 import website.tachi.app.presentation.R
+import website.tachi.app.presentation.state.GuideUiState
+import website.tachi.app.presentation.state.SpotUiState
 import website.tachi.app.presentation.theme.AppTheme
-import website.tachi.app.presentation.utils.toHHmmFormat
+import website.tachi.app.presentation.ui.guide.GuideDetailViewModel
 
 @Composable
-fun SpotDetailScreen() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(32.dp)) {
-        Text(
-            text = "Restaurant",
-            style = AppTheme.typography.gmarketSansBody.copy(
-                fontSize = 11.sp,
-                fontWeight = FontWeight(500),
-                color = Color(0x99000000),
-            )
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+fun SpotDetailScreen(
+    navController: NavController = rememberNavController(),
+    spotId: Long,
+    viewModel: SpotDetailViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.spot.collectAsStateWithLifecycle(initialValue = SpotUiState.Loading)
 
-        Text(
-            text = "이름",
-            style = AppTheme.typography.pretendardBody.copy(
-                fontSize = 30.sp,
-                fontWeight = FontWeight(700),
-                color = Color(0xFF000000)
-            )
-        )
 
-        Spacer(modifier = Modifier.height(10.dp))
+    LaunchedEffect(spotId) {
+        viewModel.loadSpot(spotId)
+    }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.star_fill_24),
-                modifier = Modifier.size(16.dp),
-                contentDescription = null
-            )
-
-            Text(
-                text = "0.0",
-                style = AppTheme.typography.pretendardBody.copy(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight(600),
-                    color = Color(0xFF000000),
-                )
-            )
-
-            Spacer(Modifier.width(4.dp))
-
-            Text(
-                text = "(0개의 후기)",
-                style = AppTheme.typography.pretendardBody.copy(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight(600),
-                    color = Color(0x99000000),
-                )
-            )
+    when (val localUiState = uiState) {
+        is SpotUiState.Loading -> {
         }
 
-        Spacer(Modifier.height(28.dp))
+        is SpotUiState.Failure -> {
 
-        Text(
-            text = "소개",
-            style = AppTheme.typography.pretendardBody.copy(
-                fontSize = 18.sp,
-                fontWeight = FontWeight(600),
-                color = Color(0xff000000),
-            )
-        )
+        }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        is SpotUiState.Success -> {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(32.dp)
+            ) {
+                Text(
+                    text = localUiState.spot.category.name,
+                    style = AppTheme.typography.gmarketSansBody.copy(
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color(0x99000000),
+                    )
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = localUiState.spot.name,
+                    style = AppTheme.typography.pretendardBody.copy(
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFF000000)
+                    )
+                )
+
+                val averageRating =
+                    localUiState.review.sumByDouble { it.rating } / localUiState.review.size
+                val roundedAverage = Math.round(averageRating * 10.0) / 10.0
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.star_fill_24),
+                        modifier = Modifier.size(16.dp),
+                        contentDescription = null
+                    )
+
+                    Text(
+                        text = roundedAverage.toString(),
+                        style = AppTheme.typography.pretendardBody.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0xFF000000),
+                        )
+                    )
+
+                    Spacer(Modifier.width(4.dp))
+
+                    Text(
+                        text = "(${localUiState.review.size}개의 후기)",
+                        style = AppTheme.typography.pretendardBody.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0x99000000),
+                        )
+                    )
+                }
+
+                Spacer(Modifier.height(28.dp))
+
+                Text(
+                    text = "소개",
+                    style = AppTheme.typography.pretendardBody.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xff000000),
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
 
 
-        Text(
-            text = "소개글",
-            style = AppTheme.typography.pretendardBody.copy(
-                fontSize = 12.sp,
-                fontWeight = FontWeight(400),
-                color = Color(0x99000000),
-            )
-        )
+                Text(
+                    text = localUiState.spot.content,
+                    style = AppTheme.typography.pretendardBody.copy(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight(400),
+                        color = Color(0x99000000),
+                    )
+                )
 
-        Spacer(Modifier.height(28.dp))
+                Spacer(Modifier.height(28.dp))
 
-        Text(
-            text = "후기",
-            style = AppTheme.typography.pretendardBody.copy(
-                fontSize = 18.sp,
-                fontWeight = FontWeight(600),
-                color = Color(0xff000000),
-            )
-        )
+                Text(
+                    text = "후기",
+                    style = AppTheme.typography.pretendardBody.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xff000000),
+                    )
+                )
 
-        Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(10) {
-                ReviewCard()
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(localUiState.review) {
+                        ReviewCard(
+                            roundedAverage,
+                            it.content,
+                            it.user.name,
+                            "https://picsum.photos/200"
+                        )
+                    }
+                }
             }
         }
+
     }
 }
 
 @Composable
-fun ReviewCard() {
+fun ReviewCard(rating: Double, content: String, name: String, profileImageUrl: String) {
     Column(
         Modifier
             .shadow(
@@ -166,7 +200,7 @@ fun ReviewCard() {
             Spacer(Modifier.width(4.dp))
 
             Text(
-                text = "0.0",
+                text = rating.toString(),
                 style = AppTheme.typography.pretendardBody.copy(
                     fontSize = 11.sp,
                     fontWeight = FontWeight(600),
@@ -178,7 +212,7 @@ fun ReviewCard() {
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "리뷰글",
+            text = content,
             style = AppTheme.typography.pretendardBody.copy(
                 fontSize = 11.5.sp,
                 fontWeight = FontWeight(400),
@@ -190,15 +224,17 @@ fun ReviewCard() {
 
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
-                modifier = Modifier.size(24.dp).clip(CircleShape),
-                model = "https://example.com/image.jpg",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape),
+                model = profileImageUrl,
                 contentDescription = null,
             )
 
             Spacer(Modifier.width(8.dp))
 
             Text(
-                text = "이름",
+                text = name,
                 style = AppTheme.typography.pretendardBody.copy(
                     fontSize = 11.sp,
                     fontWeight = FontWeight(600),
@@ -212,5 +248,5 @@ fun ReviewCard() {
 @Preview
 @Composable
 fun SpotDetailScreenPreview() {
-    SpotDetailScreen()
+//    SpotDetailScreen()
 }
