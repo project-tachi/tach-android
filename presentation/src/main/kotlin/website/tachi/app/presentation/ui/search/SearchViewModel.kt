@@ -14,8 +14,10 @@ import kotlinx.coroutines.launch
 import website.tachi.app.domain.usecase.GetFestivalsUseCase
 import website.tachi.app.domain.usecase.GetKeywordsUseCase
 import website.tachi.app.domain.usecase.GetLastAddressUseCase
+import website.tachi.app.domain.usecase.GetMainBackgroundImageUrl
 import website.tachi.app.domain.usecase.GetPreferencesUseCase
 import website.tachi.app.presentation.state.CurrentLocationUiState
+import website.tachi.app.presentation.state.MainBackgroundImageUrlUiState
 import website.tachi.app.presentation.state.MainScreenUiState
 import javax.inject.Inject
 
@@ -24,8 +26,14 @@ class SearchViewModel @Inject constructor(
     private val getFestivalsUseCase: GetFestivalsUseCase,
     private val getPreferencesUseCase: GetPreferencesUseCase,
     private val getKeywordsUseCase: GetKeywordsUseCase,
-    private val getLastAddressUseCase: GetLastAddressUseCase
+    private val getLastAddressUseCase: GetLastAddressUseCase,
+    private val getMainBackgroundImageUrl: GetMainBackgroundImageUrl
 ) : BaseViewModel() {
+
+    private val _backgroundImageUrl =
+        MutableStateFlow<MainBackgroundImageUrlUiState>(MainBackgroundImageUrlUiState.Loading)
+    val backgroundImageUrl: StateFlow<MainBackgroundImageUrlUiState> =
+        _backgroundImageUrl.asStateFlow()
 
     private val _conditions = MutableStateFlow<MainScreenUiState>(MainScreenUiState.Loading)
     val conditions: StateFlow<MainScreenUiState> = _conditions.asStateFlow()
@@ -38,6 +46,19 @@ class SearchViewModel @Inject constructor(
     var selectFestivalId = mutableStateOf<Long?>(null)
 
     init {
+        viewModelScope.launch {
+            kotlin.runCatching {
+                getMainBackgroundImageUrl()
+            }.onSuccess { url ->
+                Log.e("getMainBackgroundImageUrl", url)
+                _backgroundImageUrl.update {
+                    MainBackgroundImageUrlUiState.Success(url)
+                }
+            }.onFailure {
+                Log.e("getMainBackgroundImageUrl", it.message ?: "")
+            }
+        }
+
         viewModelScope.launch {
             kotlin.runCatching {
                 getLastAddressUseCase()

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,12 +51,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import website.tachi.app.domain.model.Festival
 import website.tachi.app.domain.model.Keyword
 import website.tachi.app.domain.model.Preference
 import website.tachi.app.presentation.ui.common.NumberPicker
 import website.tachi.app.presentation.R
 import website.tachi.app.presentation.state.CurrentLocationUiState
+import website.tachi.app.presentation.state.MainBackgroundImageUrlUiState
 import website.tachi.app.presentation.state.MainScreenUiState
 import website.tachi.app.presentation.theme.AppTheme
 import website.tachi.app.presentation.ui.main.FestivalCard
@@ -79,6 +84,8 @@ fun SearchScreen(
     navController: NavController = rememberNavController(),
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    val scrollState = rememberScrollState()
+    val mainBgImageUiState by viewModel.backgroundImageUrl.collectAsStateWithLifecycle(initialValue = MainBackgroundImageUrlUiState.Loading)
     val uiState by viewModel.conditions.collectAsStateWithLifecycle(initialValue = MainScreenUiState.Loading)
     val location by viewModel.location.collectAsStateWithLifecycle(initialValue = CurrentLocationUiState.Loading)
 
@@ -86,19 +93,40 @@ fun SearchScreen(
     var hour by remember { mutableIntStateOf(12) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.mainbackground),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
+        when (val localUiState = mainBgImageUiState) {
+            is MainBackgroundImageUrlUiState.Loading -> {
+            }
+
+            is MainBackgroundImageUrlUiState.Failure -> {
+
+            }
+
+            is MainBackgroundImageUrlUiState.Success -> {
+                AsyncImage(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(localUiState.url)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
+
+                Spacer(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0x73000000)))
+            }
+        }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(32.dp)
         ) {
-
+            
             Column(
                 Modifier
                     .fillMaxSize()

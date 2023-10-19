@@ -11,6 +11,7 @@ import website.tachi.app.data.repository.festival.FestivalRepositoryImpl
 import website.tachi.app.data.repository.guide.GuideRepositoryImpl
 import website.tachi.app.data.repository.keyword.KeywordRepositoryImpl
 import website.tachi.app.data.repository.location.LocationRepositoryImpl
+import website.tachi.app.data.repository.mainbg.MainBackgroundImageRepositoryImpl
 import website.tachi.app.data.repository.preference.PreferenceRepositoryImpl
 import website.tachi.app.data.repository.review.ReviewRepositoryImpl
 import website.tachi.app.data.repository.schedule.ScheduleRepositoryImpl
@@ -22,6 +23,7 @@ import website.tachi.app.domain.repository.FestivalRepository
 import website.tachi.app.domain.repository.GuideRepository
 import website.tachi.app.domain.repository.KeywordRepository
 import website.tachi.app.domain.repository.LocationRepository
+import website.tachi.app.domain.repository.MainBackgroundImageRepository
 import website.tachi.app.domain.repository.PreferenceRepository
 import website.tachi.app.domain.repository.ReviewRepository
 import website.tachi.app.domain.repository.ScheduleRepository
@@ -74,4 +76,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSpotRepository(repo : SpotRepositoryImpl) :SpotRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMainBackgroundImageRepository(repo : MainBackgroundImageRepositoryImpl) : MainBackgroundImageRepository
 }
